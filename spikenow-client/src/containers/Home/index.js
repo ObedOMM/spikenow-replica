@@ -1,21 +1,21 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
+import { Container } from "react-bootstrap";
 import Welcome from "./Welcome";
 import Second from "./Second";
-import Third from "./Third";
+import Placeholder from "../../components/Placeholder";
 
 const Home = () => {
   return (
     <>
-      <Grid container className="mt-5">
+      <Container fluid className="mt-5">
         <Welcome />
-      </Grid>
-      <Grid container style={{ backgroundColor: "black" }}>
+      </Container>
+      <Container fluid style={{ backgroundColor: "black" }}>
         <Second />
-      </Grid>
-      <Grid>
-        <Third />
-      </Grid>
+      </Container>
+      <Container fluid>
+        <Placeholder theme="light" title="Third Container" />
+      </Container>
     </>
   );
 };

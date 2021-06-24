@@ -1,60 +1,57 @@
 import React from "react";
-import { Grid, Container, Typography } from "@material-ui/core";
+import { Container, Row, Col } from "react-bootstrap";
 
 const Placeholder = ({ theme, title }) => {
   let items = [];
 
   for (let index = 0; index < 13; index++) {
     items.push(
-      <Grid
-        item
+      <Row
         key={index}
         style={{
           height: "10px",
           backgroundColor: theme === "light" ? "lightgrey" : "white",
         }}
         className="my-3"
-      ></Grid>
+      ></Row>
     );
   }
 
   return (
     <Container>
       {title ? (
-        <Grid container style={{ marginTop: "100px" }}>
-          <Typography variant="h1" className="text-center text-dark">
-            {title}
-          </Typography>
-        </Grid>
+        <Row style={{ marginTop: "100px" }}>
+          <Col xs={12}>
+            <h1 className="text-center text-dark display-3">{title}</h1>
+          </Col>
+        </Row>
       ) : (
         ""
       )}
-      <Grid container className="my-5" spacing={5}>
-        <Grid item lg={6}>
-          <Grid container direction="column">
-            <Grid
-              item
+      <Row className="my-5">
+        <Col lg={6} className="px-4">
+          <Row>
+            <Col
               style={{
                 height: "500px",
                 backgroundColor: theme === "light" ? "lightgrey" : "white",
               }}
-            ></Grid>
-            <Grid
-              item
+            ></Col>
+          </Row>
+          <Row>
+            <Col
               style={{
                 height: "10px",
                 backgroundColor: theme === "light" ? "lightgrey" : "white",
               }}
               className="my-4"
-            ></Grid>
-          </Grid>
-        </Grid>
-        <Grid item lg={6}>
-          <Grid container direction="column">
-            {items}
-          </Grid>
-        </Grid>
-      </Grid>
+            ></Col>
+          </Row>
+        </Col>
+        <Col lg={6} className="px-4">
+          {items}
+        </Col>
+      </Row>
     </Container>
   );
 };

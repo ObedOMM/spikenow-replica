@@ -2,13 +2,12 @@
   padding: 0;
 }
 
-li.nav-item {
-  padding: 1rem 2.62rem;
+.nav-link {
+  padding: 1rem 2.62rem !important;
   position: relative;
 }
 
-a.nav-link {
-  padding: 0;
+.nav-link {
   color: #000 !important;
   font-weight: 600;
   font-size: 1rem;

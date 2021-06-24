@@ -1,147 +1,75 @@
 import React from "react";
 import logo from "../assets/spikenow.svg";
 import Button from "./Button";
+import {
+  Navbar,
+  NavDropdown,
+  Form,
+  FormControl,
+  Nav as BSNav,
+  Container,
+} from "react-bootstrap";
 
 const Nav = () => {
   return (
-    <nav className="navbar navbar-expand-lg fixed-top navbar-light bg-white">
-      <div className="container">
-        <a className="navbar-brand" href="/">
+    <Navbar fixed="top" bg="white" expand="xl">
+      <Container fluid className="px-5">
+        <Navbar.Brand href="/">
           <img src={logo} width="114" height="58" alt="" />
-        </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                href="/"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Products
-              </a>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li>
-                  <a className="dropdown-item" href="/features">
-                    All features
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/conversational">
-                    Conversation Email
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/notes">
-                    Online Notes
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/tasks">
-                    Tasks & To-Do Lists
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/search">
-                    Advanced Search
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/groups">
-                    Groups
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/calendar">
-                    Calendar
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/file">
-                    File Management
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/priority">
-                    Priority Email Inbox
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/features/voice">
-                    Voice Messages
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link active"
-                aria-current="page"
-                href="/use-case"
-              >
-                Use Cases
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/price">
-                Prices
-              </a>
-            </li>
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                href="/"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Resources
-              </a>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li>
-                  <a className="dropdown-item" href="/help">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/blog">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="/about">
-                    About Us
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-          <form className="d-flex">
-            <input
-              className="form-control me-2"
-              type="search"
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <BSNav className="mr-auto">
+            <NavDropdown title="Products" id="basic-nav-dropdown">
+              <NavDropdown.Item href="/features">All features</NavDropdown.Item>
+              <NavDropdown.Item href="/features/conversational">
+                Conversation Email
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/notes">
+                Online Notes
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/tasks">
+                Tasks & To-Do Lists
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/search">
+                Advanced Search
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/groups">
+                Groups
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/calendar">
+                Calendar
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/file">
+                File Management
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/priority">
+                Priority Email Inbox
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/features/voice">
+                Voice Messages
+              </NavDropdown.Item>
+            </NavDropdown>
+            <BSNav.Link href="/use-cases">Use Cases</BSNav.Link>
+            <BSNav.Link href="/prices">Prices</BSNav.Link>
+            <NavDropdown title="Resources" id="basic-nav-dropdown">
+              <NavDropdown.Item href="/help">Help Center</NavDropdown.Item>
+              <NavDropdown.Item href="/blog">Blog</NavDropdown.Item>
+              <NavDropdown.Item href="/about">About Us</NavDropdown.Item>
+            </NavDropdown>
+          </BSNav>
+          <Form inline>
+            <FormControl
+              type="text"
               placeholder="Enter your email"
-              aria-label="Enter email"
+              className="mr-sm-2"
+              required
             />
             <Button text="Get Started" />
-          </form>
-        </div>
-      </div>
-    </nav>
+          </Form>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 };
 

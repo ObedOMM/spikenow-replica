@@ -4,7 +4,7 @@ import Placeholder from "./Placeholder";
 
 const Routes = () => {
   return (
-    <>
+    <Switch>
       <Route path="/" exact component={Home} />
       <Route path="/features" exact>
         <Placeholder theme="light" title="All Features" />
@@ -36,10 +36,10 @@ const Routes = () => {
       <Route path="/features/voice">
         <Placeholder theme="light" title="Voice Messages" />
       </Route>
-      <Route path="/use-case">
+      <Route path="/use-cases">
         <Placeholder theme="light" title="Use Cases" />
       </Route>
-      <Route path="/price">
+      <Route path="/prices">
         <Placeholder theme="light" title="Prices" />
       </Route>
       <Route path="/help">
@@ -51,7 +51,7 @@ const Routes = () => {
       <Route path="/about">
         <Placeholder theme="light" title="About Us" />
       </Route>
-    </>
+    </Switch>
   );
 };
 
