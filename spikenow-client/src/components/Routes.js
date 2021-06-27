@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 import Home from "../containers/Home";
 import Placeholder from "./Placeholder";
+import Chat from "../containers/Auth";
 
 const Routes = () => {
   return (
@@ -51,6 +54,7 @@ const Routes = () => {
       <Route path="/about">
         <Placeholder theme="light" title="About Us" />
       </Route>
+      <Route exact path="/chat/:code?" component={Chat} />
     </Switch>
   );
 };

@@ -4,24 +4,6 @@ import { Container, Row, Col } from "react-bootstrap";
 import { AiFillPlayCircle } from "react-icons/ai";
 import Button from "../../components/Button";
 
-// import { makeStyles } from "@material-ui/styles";
-
-// const useStyles = makeStyles({
-//   title: {
-//     fontWeight: 700,
-//     lineHeight: 1,
-//     fontSize: "3rem",
-//   },
-//   form: {
-//     display: "flex",
-//   },
-//   grayText: {
-//     color: "#7f7f7f",
-//   },
-//   textCenter: {
-//     textAlign: "center",
-//   },
-// });
 const Welcome = () => {
   // const classes = useStyles();
   const preventDefault = (event) => event.preventDefault();
