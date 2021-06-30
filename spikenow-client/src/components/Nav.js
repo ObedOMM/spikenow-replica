@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import logo from "../assets/spikenow.svg";
-import Button from "./Button";
-import GoogleLogin from "react-google-login";
+import { Login } from "./GoogleAuth";
 import {
   Navbar,
   NavDropdown,
@@ -11,29 +9,6 @@ import {
 } from "react-bootstrap";
 
 const Nav = () => {
-  // const [authUrl, setAuthUrl] = useState("");
-
-  // useEffect(() => {
-  //   fetch("http://localhost:3001/login-url")
-  //     .then((res) => res.json())
-  //     .then((data) => setAuthUrl(data))
-  //     .catch((err) => console.log(err));
-  // }, []);
-
-  const handleLogin = async (googleData) => {
-    const res = await fetch("http://localhost:3001/api/v1/auth/google", {
-      method: "POST",
-      body: JSON.stringify({
-        token: googleData,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    // store returned user somehow
-  };
-
   return (
     <Navbar fixed="top" bg="white" expand="xl">
       <Container fluid className="px-5">
@@ -82,36 +57,7 @@ const Nav = () => {
             </NavDropdown>
           </BSNav>
           <Form inline>
-            {/* <FormControl
-              type="text"
-              placeholder="Enter your email"
-              className="mr-sm-2"
-              required
-            /> */}
-
-            <GoogleLogin
-              clientId="886519749145-kjltr7kubuadpgpnli3lfh10bb9g0rn8.apps.googleusercontent.com"
-              render={(renderProps) => (
-                <button
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                  id="btn-spike"
-                >
-                  Get Started
-                </button>
-              )}
-              buttonText="Log in with Google"
-              onSuccess={handleLogin}
-              onFailure={handleLogin}
-              cookiePolicy={"single_host_origin"}
-              accessType="offline"
-              responseType="code"
-            />
-
-            {/* <a href={authUrl} id="btn-spike">
-              Get Started
-            </a> */}
-            {/* <Button href={authUrl} text="" /> */}
+            <Login text="Get Started" />
           </Form>
         </Navbar.Collapse>
       </Container>

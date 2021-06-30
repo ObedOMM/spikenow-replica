@@ -8,7 +8,7 @@ import config from "../config";
 const googleConfig = {
   clientId: config.googleCredentials.clientId,
   clientSecret: config.googleCredentials.clientSecret,
-  redirect: "http://localhost:3001/google-auth",
+  redirect: "http://localhost:3000",
 };
 
 const defaultScope = [
@@ -29,14 +29,6 @@ function createConnection() {
     googleConfig.clientSecret,
     googleConfig.redirect
   );
-}
-
-function getConnectionUrl(auth) {
-  return auth.generateAuthUrl({
-    access_type: "offline",
-    // prompt: "consent",
-    scope: defaultScope,
-  });
 }
 
 function makeBody(to, from, subject, message) {
@@ -63,10 +55,6 @@ function makeBody(to, from, subject, message) {
   return encodedMail;
 }
 
-function getGooglePlusApi(auth) {
-  return google.plus({ version: "v1", auth });
-}
-
 function getGmailApi(auth) {
   return google.gmail({ version: "v1", auth });
 }
@@ -76,16 +64,7 @@ function getGmailApi(auth) {
 /**********/
 
 /**
- * Part 1: Create a Google URL and send to the client to log in the user.
- */
-function urlGoogle() {
-  const auth = createConnection();
-  const url = getConnectionUrl(auth);
-  return url;
-}
-
-/**
- * Part 2: Take the "code" parameter which Google gives us once when the user logs in, then get the user's email and id.
+ * Take the "code" parameter which Google gives us once when the user logs in, then get the user's email and id.
  */
 async function getGoogleAccountFromCode(code) {
   const auth = createConnection();
@@ -97,6 +76,10 @@ async function getGoogleAccountFromCode(code) {
   return {
     id: profile.data.id,
     email: profile.data.email,
+    full_name: profile.data.name,
+    given_name: profile.data.given_name,
+    family_name: profile.data.family_name,
+    picture: profile.data.picture,
     refresh_token: tokens.refresh_token,
   };
 }
@@ -122,4 +105,52 @@ async function sendGmail(token, subject, message, to) {
   );
 }
 
-export default { urlGoogle, sendGmail, getGoogleAccountFromCode };
+async function getEmails(token) {
+  const auth = createConnection();
+  auth.setCredentials({ refresh_token: token });
+  const gmail = getGmailApi(auth);
+  const res = await gmail.users.messages.list({
+    userId: "me",
+    q: "",
+  });
+  const messages = res.data.messages;
+
+  const getEmails = async () => {
+    return Promise.all(
+      messages.map((mail) => getEmailWithAuthExisting(gmail, mail.id))
+    );
+  };
+
+  const emails = await getEmails();
+
+  return emails;
+}
+
+async function getEmailWithAuthExisting(gmail, emailId) {
+  const res = await gmail.users.messages.get({
+    userId: "me",
+    id: emailId,
+    format: "metadata",
+    metadataHeaders: ["From", "Subject", "To"],
+  });
+  const { id, payload, snippet } = res.data;
+  return { id, payload, snippet };
+}
+
+async function getEmail(token, emailId) {
+  const auth = createConnection();
+  auth.setCredentials({ refresh_token: token });
+  const gmail = getGmailApi(auth);
+  const res = await gmail.users.messages.get({
+    userId: "me",
+    id: emailId,
+    format: "raw",
+    metadataHeaders: ["From", "Subject"],
+  });
+
+  const { id, payload, snippet } = res.data;
+
+  return { id, payload, snippet };
+}
+
+export default { sendGmail, getGoogleAccountFromCode, getEmails, getEmail };

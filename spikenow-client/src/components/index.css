@@ -35,3 +35,8 @@ nav input.form-control {
   background-color: white;
   color: #0181ff;
 }
+
+#chat-box:hover {
+  background-color: #f6f6f6;
+  cursor: pointer;
+}

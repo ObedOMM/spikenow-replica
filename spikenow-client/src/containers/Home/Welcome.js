@@ -2,7 +2,7 @@ import banner from "../../assets/banner.png";
 import companies from "../../assets/comps.png";
 import { Container, Row, Col } from "react-bootstrap";
 import { AiFillPlayCircle } from "react-icons/ai";
-import Button from "../../components/Button";
+import { Login } from "../../components/GoogleAuth";
 
 const Welcome = () => {
   // const classes = useStyles();
@@ -40,7 +40,7 @@ const Welcome = () => {
                 }}
                 required
               />
-              <Button text="Get Started" />
+              <Login text="Get Started" />
             </form>
           </div>
         </Col>
