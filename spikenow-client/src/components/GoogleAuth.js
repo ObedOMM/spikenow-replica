@@ -72,6 +72,7 @@ export const Logout = () => {
           onClick={renderProps.onClick}
           disabled={renderProps.disabled}
           variant="link"
+          className="py-0 my-1"
         >
           <h4 className="m-0">
             <BiLogOut />

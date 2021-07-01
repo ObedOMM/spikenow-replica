@@ -1,12 +1,15 @@
 import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
 
 const ChatSideBar = ({ chatBoxes }) => {
   return (
-    <Container fluid>
-      <Row>
-        <Card className="w-100 border-top-0 border-left-0 border-right-0 rounded-0 px-3 py-2">
-          <div className="d-flex">
+    <>
+      <div>
+        <Card
+          className="w-100 border-top-0 border-left-0 border-right-0 rounded-0"
+          style={{ height: "50px" }}
+        >
+          <div className="d-flex my-auto mx-3">
             <img
               src="https://randomuser.me/api/portraits/men/9.jpg"
               className="rounded-circle"
@@ -19,14 +22,25 @@ const ChatSideBar = ({ chatBoxes }) => {
             </h6>
           </div>
         </Card>
-      </Row>
-      <Row>
-        <Col style={{ height: "86vh", overflowY: "scroll" }} className="px-0">
-          <h6 className="mx-3">Today</h6>
-          {chatBoxes}
-        </Col>
-      </Row>
-    </Container>
+      </div>
+      <div
+        className="px-0 flex-grow-1"
+        style={{ height: "0px", overflowY: "auto" }}
+      >
+        <h6 className="mx-3">Today</h6>
+        {chatBoxes}
+      </div>
+      <div>
+        <Card
+          className="w-100 border-left-0 border-right-0 rounded-0 d-flex "
+          style={{ height: "50px" }}
+        >
+          <Button variant="link" className="my-auto">
+            but
+          </Button>
+        </Card>
+      </div>
+    </>
   );
 };
 

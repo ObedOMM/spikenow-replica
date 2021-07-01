@@ -1,3 +1,8 @@
+html,
+body {
+  height: 100%;
+}
+
 .navbar {
   padding: 0;
 }
@@ -38,5 +43,9 @@ nav input.form-control {
 
 #chat-box:hover {
   background-color: #f6f6f6;
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
   cursor: pointer;
 }

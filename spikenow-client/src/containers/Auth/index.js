@@ -11,6 +11,7 @@ const Chat = () => {
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState("");
   const [selectedName, setSelectedName] = useState("Sender");
+  const [showBody, setShowBody] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -35,6 +36,7 @@ const Chat = () => {
   const setSelectedContact = (email, name) => {
     setSelectedEmail(email);
     setSelectedName(name);
+    setShowBody(true);
   };
 
   const stripSender = (string) => {
@@ -98,32 +100,6 @@ const Chat = () => {
       return filtered;
     }, []);
 
-    // console.log(reduce);
-    // console.log(reduce);
-    // const test = emails.map((email) => {
-    //   const sender = email.payload.headers.find((data) => {
-    //     return data.name === "From" || data.name === "from";
-    //   });
-    //   const subject = email.payload.headers.find((data) => {
-    //     return data.name === "Subject";
-    //   });
-
-    //   // const { id, snippet, sender, subject } = email;
-
-    //   const stripped = stripSender(sender.value);
-
-    //   return (
-    //     <ChatBox
-    //       sender={stripped.name ? stripped.name : stripped}
-    //       subject={subject ? subject.value : ""}
-    //       snippet={email.snippet}
-    //       onClick={setSelectedContact}
-    //       email={stripped.email ? stripped.email : stripped}
-    //       key={email.id}
-    //     />
-    //   );
-    // });
-
     return reduce;
   };
 
@@ -151,17 +127,24 @@ const Chat = () => {
   };
 
   return (
-    <Container fluid style={{ height: "100vh" }}>
-      <Row className="h-100">
-        <Col md={4} className="border border-bottom-0 border-top-0 m-0 p-0">
+    <Container fluid>
+      <Row>
+        <Col
+          md={4}
+          className="border border-bottom-0 border-top-0 m-0 p-0 min-vh-100 d-flex flex-column"
+        >
           <ChatSideBar chatBoxes={chatBox(emails)} />
         </Col>
-        <Col md={8} className="border-0 m-0 p-0 bg-light">
+        <Col
+          md={8}
+          className="border-0 m-0 p-0 bg-light min-vh-100 d-flex flex-column"
+        >
           <ChatBody
             onSubmit={sendEmail}
             senderName={selectedName}
             message={message}
-            setMessage={setMessage}
+            isShowBody={showBody}
+            setShowBody={setShowBody}
           />
         </Col>
       </Row>
