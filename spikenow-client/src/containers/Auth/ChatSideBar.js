@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Button } from "react-bootstrap";
+import { ImPencil2 } from "react-icons/im";
 
 const ChatSideBar = ({ chatBoxes }) => {
   return (
@@ -32,11 +33,15 @@ const ChatSideBar = ({ chatBoxes }) => {
       </div>
       <div>
         <Card
-          className="w-100 border-left-0 border-right-0 rounded-0 d-flex "
+          className="w-100 border-left-0 border-right-0 rounded-0 d-flex justify-content-center p-0"
           style={{ height: "50px" }}
         >
-          <Button variant="link" className="my-auto">
-            but
+          <Button
+            variant="primary"
+            className="my-auto shadow-none rounded-circle p-0 d-flex justify-content-center align-self-center"
+            style={{ width: "35px", height: "35px" }}
+          >
+            <ImPencil2 className="h5 align-self-center m-0" />
           </Button>
         </Card>
       </div>

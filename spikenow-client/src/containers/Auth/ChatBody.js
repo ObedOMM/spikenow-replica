@@ -1,8 +1,10 @@
-import { Card, Form, Button } from "react-bootstrap";
+import { useState, useEffect, useRef } from "react";
+import { Card, Form, Button, Modal, Spinner } from "react-bootstrap";
 import { HiOutlineAtSymbol } from "react-icons/hi";
 import { BiCode } from "react-icons/bi";
 import { FaLessThan } from "react-icons/fa";
 import { FaPaperPlane } from "react-icons/fa";
+
 import { Logout } from "../../components/GoogleAuth";
 
 const ChatBody = ({
@@ -12,23 +14,19 @@ const ChatBody = ({
   setMessage,
   isShowBody,
   setShowBody,
+  bubble,
+  isSending,
 }) => {
-  // function onMessage(content) {
-  //   if (this.selectedUser) {
-  //     socket.emit("private message", {
-  //       content,
-  //       to: this.selectedUser.userID,
-  //     });
-  //     this.selectedUser.messages.push({
-  //       content,
-  //       fromSelf: true,
-  //     });
-  //   }
-  // }
-  // function onSelectUser(user) {
-  //   this.selectedUser = user;
-  //   user.hasNewMessages = false;
-  // }
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [bubble]);
 
   return (
     <>
@@ -48,7 +46,7 @@ const ChatBody = ({
               ) : (
                 ""
               )}{" "}
-              {senderName}
+              {isShowBody ? senderName : "Welcome to SpikeNow"}
             </h6>
             <Logout />
           </div>
@@ -70,13 +68,16 @@ const ChatBody = ({
       ) : (
         <>
           <div
-            className="flex-grow-1"
+            className="d-flex flex-column flex-grow-1 px-3"
             style={{
               height: "0px",
               overflowY: "auto",
               backgroundColor: "white",
             }}
-          ></div>
+          >
+            {bubble}
+            <div ref={messagesEndRef}></div>
+          </div>
           <div>
             <div className="d-flex" style={{ height: "50px" }}>
               <Form.Control
@@ -89,6 +90,7 @@ const ChatBody = ({
               <Button
                 variant="link"
                 className="bg-white border-top border-bottom rounded-0 m-0"
+                onClick={handleShow}
               >
                 {" "}
                 <BiCode />{" "}
@@ -97,12 +99,35 @@ const ChatBody = ({
                 variant="link"
                 className="bg-white border-top border-bottom rounded-0 m-0"
                 onClick={() => onSubmit(message)}
+                disabled={isSending ? true : false}
               >
                 {" "}
-                <FaPaperPlane />{" "}
+                {isSending ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <FaPaperPlane />
+                )}{" "}
               </Button>
             </div>
           </div>
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Reply</Modal.Title>
+            </Modal.Header>
+            <Modal.Body></Modal.Body>
+            <Modal.Footer>
+              <Button variant="link" className="bg-white">
+                {" "}
+                <FaPaperPlane />{" "}
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </>
       )}
     </>

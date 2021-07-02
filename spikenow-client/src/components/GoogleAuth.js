@@ -20,16 +20,19 @@ export const Login = ({ text }) => {
         "Content-Type": "application/json",
       },
     });
-    const { token, email, full_name } = await res.json();
+    const { token, email, full_name, id } = await res.json();
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("email", email);
     sessionStorage.setItem("full_name", full_name);
+    sessionStorage.setItem("id", id);
     if (token) {
-      socket.auth = { email };
+      console.log(email);
+      socket.auth = { id, email };
       socket.connect();
       history.push("/web/chat");
     }
   };
+  const handleFailure = async (error) => console.log(error);
   return (
     <GoogleLogin
       clientId="886519749145-kjltr7kubuadpgpnli3lfh10bb9g0rn8.apps.googleusercontent.com"
@@ -43,7 +46,8 @@ export const Login = ({ text }) => {
         </button>
       )}
       onSuccess={handleLogin}
-      onFailure={handleLogin}
+      onFailure={handleFailure}
+      scope="https://mail.google.com/"
       cookiePolicy={"single_host_origin"}
       accessType="offline"
       responseType="code"

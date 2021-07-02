@@ -7,6 +7,7 @@ import config from "./config";
 import Sequelize from "sequelize";
 import socketIO from "socket.io";
 import routes from "./routes";
+import websocket from "./routes/websocket";
 
 function connectMySQL() {
   const sequelize = new Sequelize(config.mysql.options);
@@ -61,49 +62,7 @@ const io = socketIO(server, {
   },
 });
 
-io.use((socket, next) => {
-  const username = socket.handshake.auth.email;
-  console.log(username);
-  if (!username) {
-    console.log("invalid username");
-    return next(new Error("invalid username"));
-  }
-  socket.username = username;
-  next();
-});
-
-io.on("connection", (socket) => {
-  console.log("New client connected");
-
-  const users = [];
-  for (let [id, socket] of io.of("/").sockets) {
-    users.push({
-      userID: id,
-      username: socket.username,
-    });
-  }
-  socket.emit("users", users);
-
-  // notify existing users
-  socket.broadcast.emit("user connected", {
-    userID: socket.id,
-    username: socket.username,
-  });
-
-  // forward the private message to the right recipient
-  socket.on("private message", ({ content, to }) => {
-    socket.to(to).emit("private message", {
-      content,
-      from: socket.id,
-    });
-  });
-
-  // notify users upon disconnection
-  socket.on("disconnect", () => {
-    console.log("Client Disconnected");
-    socket.broadcast.emit("user disconnected", socket.id);
-  });
-});
+websocket({ io });
 
 routes({ app, config });
 

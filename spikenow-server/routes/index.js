@@ -1,7 +1,9 @@
-import login from "./login";
+import auth from "./auth";
+import chat from "./chat";
 
-const routes = ({ app, config }) => {
-  login({ app, config });
+const routes = (config) => {
+  auth(config);
+  chat(config);
 };
 
 export default routes;
