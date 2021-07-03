@@ -1,5 +1,6 @@
 const websocket = ({ io }) => {
   io.use((socket, next) => {
+    console.log("suck it");
     const { id, email } = socket.handshake.auth;
     // console.log(id);
     // if (!email) {
@@ -34,7 +35,6 @@ const websocket = ({ io }) => {
 
     // forward the private message to the right recipient
     socket.on("private message", ({ content, to }) => {
-      console.log(content);
       socket.to(to).emit("private message", {
         content,
         from: socket.userID,

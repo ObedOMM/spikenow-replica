@@ -1,34 +1,25 @@
-import { useContext } from "react";
+import myAxios from "../utils/connection";
 import { Button } from "react-bootstrap";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import { useHistory } from "react-router";
 import { BiLogOut } from "react-icons/bi";
-import { UnauthorizedContext } from "./Routes";
-import { AuthorizedUserContext } from "./AuthorizedRoutes";
+import socket from "../socket";
 
 export const Login = ({ text }) => {
   const history = useHistory();
-  const socket = useContext(UnauthorizedContext);
 
   const handleLogin = async ({ code }) => {
-    const res = await fetch("http://localhost:3001/google-auth", {
-      method: "POST",
-      body: JSON.stringify({
-        code,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const res = await myAxios.post("/google-auth", {
+      code,
     });
-    const { token, email, full_name, id } = await res.json();
+
+    const { token, email, full_name, id } = await res.data;
+    console.log(res);
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("email", email);
     sessionStorage.setItem("full_name", full_name);
     sessionStorage.setItem("id", id);
     if (token) {
-      console.log(email);
-      socket.auth = { id, email };
-      socket.connect();
       history.push("/web/chat");
     }
   };
@@ -58,7 +49,6 @@ export const Login = ({ text }) => {
 
 export const Logout = () => {
   const history = useHistory();
-  const { socket } = useContext(AuthorizedUserContext);
   async function logout() {
     sessionStorage.clear();
     socket.disconnect();

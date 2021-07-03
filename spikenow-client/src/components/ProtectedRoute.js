@@ -5,19 +5,7 @@ import { AuthorizedUserContext } from "./AuthorizedRoutes";
 function ProtectedRoute({ component: Component, ...restOfProps }) {
   const userInfo = useContext(AuthorizedUserContext);
 
-  const auth = async () => {
-    const res = await fetch("http://localhost:3001/isAuth", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: userInfo.token,
-      },
-    });
-    const data = await res.json();
-    return data;
-  };
-
-  const isAuthenticated = userInfo.length !== 0 ? auth() : false;
+  const isAuthenticated = userInfo.length !== 0 ? true : false;
 
   return (
     <Route

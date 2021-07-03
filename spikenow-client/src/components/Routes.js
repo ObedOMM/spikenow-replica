@@ -1,15 +1,12 @@
-import { createContext } from "react";
 import { Route, Switch } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import Home from "../containers/Home";
 import Placeholder from "./Placeholder";
 
-export const UnauthorizedContext = createContext();
-
-const Routes = ({ socket }) => {
+const Routes = () => {
   return (
-    <UnauthorizedContext.Provider value={socket}>
+    <>
       <Header />
       <Switch>
         <Route path="/" exact component={Home} />
@@ -60,7 +57,7 @@ const Routes = ({ socket }) => {
         </Route>
       </Switch>
       <Footer />
-    </UnauthorizedContext.Provider>
+    </>
   );
 };
 

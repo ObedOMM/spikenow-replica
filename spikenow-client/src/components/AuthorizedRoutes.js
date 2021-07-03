@@ -1,16 +1,15 @@
-import { createContext } from "react";
+import { createContext, useEffect } from "react";
 import { Switch } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import Chat from "../containers/Auth";
 
-// import { AppContext } from "../App";
-
 export const AuthorizedUserContext = createContext();
 
-const AuthorizedRoutes = ({ socket }) => {
+const AuthorizedRoutes = () => {
   const userInfo = sessionStorage;
+
   return (
-    <AuthorizedUserContext.Provider value={{ userInfo, socket }}>
+    <AuthorizedUserContext.Provider value={{ userInfo }}>
       <Switch>
         <ProtectedRoute exact path="/web/chat" component={Chat} />
       </Switch>

@@ -1,10 +1,12 @@
 import { useContext, useState, useEffect } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
+import myAxios from "../../utils/connection";
 import { AuthorizedUserContext } from "../../components/AuthorizedRoutes";
 import ChatBody from "./ChatBody";
 import ChatSideBar from "./ChatSideBar";
 import ChatBox from "./ChatBox";
 import ChatBubble from "./ChatBubble";
+import socket from "../../socket";
 
 const stripContact = (string) => {
   let email = string.substring(
@@ -112,54 +114,33 @@ const sortEmail = (userEmail, emails, isDuplicate = true, sort = "desc") => {
   return sortedEmail;
 };
 
-async function getEmails(token) {
-  console.log("isLoading");
-  const res = await fetch("http://localhost:3001/getEmails", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
-  });
-  const data = await res.json();
+async function getEmails() {
+  console.log("getting");
+  const res = await myAxios.get("/getEmails");
+  const data = await res.data;
   return data;
 }
 
-async function getMessages(token, email, userEmail) {
-  const res = await fetch(`http://localhost:3001/getMessages/${email}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
-  });
-  const data = await res.json();
+async function getMessages(email, userEmail) {
+  const res = await myAxios.get(`/getMessages/${email}`);
+  const data = await res.data;
   const sortedMessages = sortEmail(userEmail, data, false, "asc");
   return sortedMessages;
 }
 
-async function sendMessage(token, selectedEmail, message) {
-  const res = await fetch("http://localhost:3001/email", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
-    },
-    body: JSON.stringify({
-      to: selectedEmail,
-      subject: "This message is from SpikeNow Replica",
-      message: message,
-    }),
+async function sendMessage(selectedEmail, message) {
+  const res = await myAxios.post("/email", {
+    to: selectedEmail,
+    subject: "This message is from SpikeNow Replica",
+    message: message,
   });
-
   const data = await res.json();
   // alert(data.message);
   return data;
 }
 
 const Chat = () => {
-  const { userInfo, socket } = useContext(AuthorizedUserContext);
-  const { token } = userInfo;
+  const { userInfo } = useContext(AuthorizedUserContext);
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState("");
   const [selectedName, setSelectedName] = useState("");
@@ -172,36 +153,51 @@ const Chat = () => {
 
   useEffect(() => {
     if (!isSending) {
-      getEmails(token).then((emails) => {
+      getEmails().then((emails) => {
         const sortedEmails = sortEmail(userInfo.email, emails);
         setEmails(sortedEmails);
-        console.log("gets");
+        console.log("useEff got it");
       });
     }
   }, [isSending]);
 
-  socket.on("users", (users) => {
-    setConnectedUsers(users);
-  });
+  useEffect(() => {
+    socket.connect();
+    socket.on("private message", ({ content, from, to }) => {
+      const user = connectedUsers.find((user) => user.userID === from);
 
-  socket.on("private message", ({ content, from, to }) => {
-    const user = connectedUsers.find((user) => user.userId === from);
-    if (user.email === selectedEmail) {
-      setIsChatLoading(true);
-      getMessages(token, user.email, userInfo.email).then(
-        (selectedMessages) => {
+      if (user && user.email === selectedEmail) {
+        getMessages(user.email, userInfo.email).then((selectedMessages) => {
+          console.log("message box");
           const chat = selectedMessages.map((message) => (
             <ChatBubble key={message.id} message={message} />
           ));
           setBubble(chat);
-          setIsChatLoading(false);
           console.log("chatloaded");
-        }
-      );
-    }
-    getEmails(token).then((emails) => {
-      setEmails(emails);
+        });
+      }
+      setIsSending(true);
+      setIsSending(false);
     });
+
+    socket.on("users", (users) => {
+      setConnectedUsers(users);
+    });
+
+    socket.on("user connected", (user) => {
+      setConnectedUsers([...connectedUsers, user]);
+    });
+
+    // socket.on("user disconnected", () => {
+    //   socket.removeAllListeners("private message");
+    // });
+
+    return () => {
+      socket.off("users");
+      socket.off("private message");
+      socket.off("user connected");
+      socket.off("user disconnected");
+    };
   });
 
   const setSelectedContact = async (email, name) => {
@@ -210,7 +206,7 @@ const Chat = () => {
     setShowBody(true);
 
     setIsChatLoading(true);
-    getMessages(token, email, userInfo.email).then((selectedMessages) => {
+    getMessages(email, userInfo.email).then((selectedMessages) => {
       const chat = selectedMessages.map((message) => (
         <ChatBubble key={message.id} message={message} />
       ));
@@ -258,7 +254,7 @@ const Chat = () => {
       setIsSending(false);
       return;
     }
-    sendMessage(token, selectedEmail, message)
+    sendMessage(selectedEmail, message)
       .then((response) => {
         const email = sortEmail(
           userInfo.email,
@@ -271,6 +267,7 @@ const Chat = () => {
         const socketReceiver = connectedUsers.find(
           (user) => user.email === selectedEmail
         );
+        console.log("Emitted", connectedUsers, selectedEmail);
         if (socketReceiver) {
           socket.emit("private message", {
             content: message,
