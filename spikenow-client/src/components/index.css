@@ -34,6 +34,7 @@ nav input.form-control {
   font-weight: 600;
   display: block;
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
 #btn-spike:hover {

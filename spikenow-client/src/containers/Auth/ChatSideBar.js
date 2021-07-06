@@ -1,8 +1,12 @@
-import React from "react";
+import { useState } from "react";
 import { Card, Button } from "react-bootstrap";
 import { ImPencil2 } from "react-icons/im";
 
-const ChatSideBar = ({ chatBoxes }) => {
+const ChatSideBar = ({ noteBoxes, chatBoxes, setShow, setShowOptions }) => {
+  const handleShow = () => {
+    setShowOptions(true);
+    setShow(true);
+  };
   return (
     <>
       <div>
@@ -28,6 +32,8 @@ const ChatSideBar = ({ chatBoxes }) => {
         className="px-0 flex-grow-1"
         style={{ height: "0px", overflowY: "auto" }}
       >
+        <h6 className="mx-3">Notes</h6>
+        {noteBoxes}
         <h6 className="mx-3">Today</h6>
         {chatBoxes}
       </div>
@@ -41,7 +47,10 @@ const ChatSideBar = ({ chatBoxes }) => {
             className="my-auto shadow-none rounded-circle p-0 d-flex justify-content-center align-self-center"
             style={{ width: "35px", height: "35px" }}
           >
-            <ImPencil2 className="h5 align-self-center m-0" />
+            <ImPencil2
+              className="h5 align-self-center m-0"
+              onClick={handleShow}
+            />
           </Button>
         </Card>
       </div>

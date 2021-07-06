@@ -10,7 +10,7 @@ const Welcome = () => {
   return (
     <Container fluid className="px-5">
       <Row container spacing={2}>
-        <Col lg={5} md={5}>
+        <Col lg={5} md={7}>
           <div>
             <h2 className={`mt-5 mb-3`}>Welcome to the future of email</h2>
           </div>
@@ -34,7 +34,6 @@ const Welcome = () => {
                 className="form-control mr-2"
                 placeholder="Enter your email"
                 style={{
-                  width: "auto",
                   backgroundColor: "#f2f2f2",
                   borderStyle: "none",
                 }}
@@ -44,7 +43,7 @@ const Welcome = () => {
             </form>
           </div>
         </Col>
-        <Col lg={7} md={5}>
+        <Col lg={7} md={5} className="d-flex mx-auto my-auto">
           <img
             src={banner}
             alt=""

@@ -14,7 +14,6 @@ export const Login = ({ text }) => {
     });
 
     const { token, email, full_name, id } = await res.data;
-    console.log(res);
     sessionStorage.setItem("token", token);
     sessionStorage.setItem("email", email);
     sessionStorage.setItem("full_name", full_name);
@@ -47,7 +46,7 @@ export const Login = ({ text }) => {
   );
 };
 
-export const Logout = () => {
+export const Logout = ({ text }) => {
   const history = useHistory();
   async function logout() {
     sessionStorage.clear();
@@ -70,6 +69,7 @@ export const Logout = () => {
         >
           <h4 className="m-0">
             <BiLogOut />
+            {text ? text : ""}
           </h4>
         </Button>
       )}

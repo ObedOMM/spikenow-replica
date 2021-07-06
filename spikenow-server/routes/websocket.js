@@ -1,12 +1,6 @@
 const websocket = ({ io }) => {
   io.use((socket, next) => {
-    console.log("suck it");
     const { id, email } = socket.handshake.auth;
-    // console.log(id);
-    // if (!email) {
-    //   console.log("invalid email");
-    //   return next(new Error("invalid email"));
-    // }
 
     socket.userID = id;
     socket.email = email;
@@ -19,12 +13,16 @@ const websocket = ({ io }) => {
 
     const users = [];
     for (let [id, socket] of io.of("/").sockets) {
+      const checkExisting = users.find((user) => user.userID === socket.userID);
+      if (checkExisting) {
+        return;
+      }
       users.push({
         userID: socket.userID,
         email: socket.email,
       });
     }
-    console.log(users);
+    console.log("Users", users);
     socket.emit("users", users);
 
     // notify existing users

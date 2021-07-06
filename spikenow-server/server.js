@@ -4,27 +4,37 @@ import session from "express-session";
 import cors from "cors";
 import jsonwebtoken from "jsonwebtoken";
 import config from "./config";
-import Sequelize from "sequelize";
+// import Sequelize from "sequelize";
+import mongoose from "mongoose";
 import socketIO from "socket.io";
 import routes from "./routes";
 import websocket from "./routes/websocket";
 
-function connectMySQL() {
-  const sequelize = new Sequelize(config.mysql.options);
-  sequelize
-    .authenticate()
-    .then(() => {
-      console.info("Successfully connected to MySQL");
-    })
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
-  return sequelize;
-}
+// function connectMySQL() {
+//   const sequelize = new Sequelize(config.mysql.options);
+//   sequelize
+//     .authenticate()
+//     .then(() => {
+//       console.info("Successfully connected to MySQL");
+//     })
+//     .catch((error) => {
+//       console.error(error);
+//       process.exit(1);
+//     });
+//   return sequelize;
+// }
 
-const mysql = connectMySQL();
-config.mysql.client = mysql;
+// const mysql = connectMySQL();
+// config.mysql.client = mysql;
+
+async function connectToMongoose() {
+  return mongoose.connect(config.mongodb.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  });
+}
 
 const app = express();
 
@@ -68,6 +78,13 @@ routes({ app, config });
 
 const port = process.env.PORT;
 
-server.listen(port, () =>
-  console.log(`SpikeNow server is now running in port ${port}`)
-);
+connectToMongoose()
+  .then(() => {
+    console.log("Mongoose connected");
+    server.listen(port, () =>
+      console.log(`SpikeNow server is now running in port ${port}`)
+    );
+  })
+  .catch((error) => {
+    console.log(error);
+  });

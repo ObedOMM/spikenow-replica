@@ -6,6 +6,9 @@ import ChatBody from "./ChatBody";
 import ChatSideBar from "./ChatSideBar";
 import ChatBox from "./ChatBox";
 import ChatBubble from "./ChatBubble";
+import NewEmail from "./NewEmail";
+import NewNote from "./NewNote";
+import NoteBox from "./NoteBox";
 import socket from "../../socket";
 
 const stripContact = (string) => {
@@ -71,12 +74,20 @@ const sortEmail = (userEmail, emails, isDuplicate = true, sort = "desc") => {
     let content = snippet;
 
     if (!isDuplicate) {
-      if (payload.mimeType === "text/plain") {
+      if (
+        payload.mimeType === "text/plain" ||
+        payload.mimeType === "text/html"
+      ) {
         let buff = new Buffer(payload.body.data, "base64");
         content = buff.toString("ascii");
+        // console.log(option);
+        if (payload.mimeType === "text/html") {
+          console.log(content);
+        }
       } else {
         if (payload.parts[0].body.data) {
-          let buff = new Buffer(payload.parts[0].body.data, "base64");
+          console.log(option);
+          let buff = new Buffer(payload.parts[1].body.data, "base64");
           content = buff.toString("ascii");
         }
       }
@@ -114,6 +125,22 @@ const sortEmail = (userEmail, emails, isDuplicate = true, sort = "desc") => {
   return sortedEmail;
 };
 
+const addReceivedEmails = (emails) => {
+  const newEmails = emails.slice().sort((a, b) => b.time - a.time);
+
+  return newEmails.reduce((filtered, email) => {
+    // console.log(email);
+    const existing = filtered
+      ? filtered.find((data) => data.contact.email === email.contact.email)
+      : null;
+    if (existing) {
+      return filtered;
+    }
+    filtered.push(email);
+    return filtered;
+  }, []);
+};
+
 async function getEmails() {
   console.log("getting");
   const res = await myAxios.get("/getEmails");
@@ -128,14 +155,30 @@ async function getMessages(email, userEmail) {
   return sortedMessages;
 }
 
-async function sendMessage(selectedEmail, message) {
+async function sendMessage(to, subject, message) {
   const res = await myAxios.post("/email", {
-    to: selectedEmail,
-    subject: "This message is from SpikeNow Replica",
+    to: to,
+    subject: subject,
     message: message,
   });
-  const data = await res.json();
+  const data = await res.data;
   // alert(data.message);
+  return data;
+}
+
+async function addNote(title, text, userID) {
+  const res = await myAxios.post("/addNote", {
+    title: title,
+    text: text,
+    userID: userID,
+  });
+  const data = await res.data;
+  return data;
+}
+
+async function getNotes(userID) {
+  const res = await myAxios.get(`/getNotes/${userID}`);
+  const data = await res.data;
   return data;
 }
 
@@ -146,41 +189,64 @@ const Chat = () => {
   const [selectedName, setSelectedName] = useState("");
   const [showBody, setShowBody] = useState(false);
   const [message, setMessage] = useState("");
+  const [subject, setSubject] = useState(
+    "This message is from SpikeNow Replica"
+  );
   const [bubble, setBubble] = useState();
   const [isSending, setIsSending] = useState(false);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [show, setShow] = useState(false);
+  const [showNote, setShowNote] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newSubject, setNewSubject] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [showOptions, setShowOptions] = useState("");
+  const [isAddingNote, setIsAddingNote] = useState(false);
+  const [todayNotes, setTodayNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState([]);
+
+  const handleClose = (isShowNote = false) => {
+    setNewEmail("");
+    setNewMessage("");
+    setNewSubject("");
+    setShowNote(isShowNote);
+    setShow(false);
+  };
 
   useEffect(() => {
-    if (!isSending) {
-      getEmails().then((emails) => {
-        const sortedEmails = sortEmail(userInfo.email, emails);
-        setEmails(sortedEmails);
-        console.log("useEff got it");
-      });
-    }
-  }, [isSending]);
+    getEmails().then((retrievedEmails) => {
+      const sortedEmails = sortEmail(userInfo.email, retrievedEmails);
+      setEmails(sortedEmails);
+      console.log("useEff got it");
+    });
+    getNotes(userInfo.id).then((notes) => {
+      console.log("notes?");
+      setTodayNotes(notes);
+      console.log(notes);
+    });
+  }, []);
 
   useEffect(() => {
     socket.connect();
     socket.on("private message", ({ content, from, to }) => {
       const user = connectedUsers.find((user) => user.userID === from);
-
+      console.log("from pm", content);
       if (user && user.email === selectedEmail) {
-        getMessages(user.email, userInfo.email).then((selectedMessages) => {
-          console.log("message box");
-          const chat = selectedMessages.map((message) => (
-            <ChatBubble key={message.id} message={message} />
-          ));
-          setBubble(chat);
-          console.log("chatloaded");
-        });
+        const chat = <ChatBubble key={content[0].id} message={content[0]} />;
+        setBubble([...bubble, chat]);
       }
-      setIsSending(true);
-      setIsSending(false);
+      content[0].time = new Date(content[0].time);
+      content[0].contact = content[0].sender;
+      const newEmails = addReceivedEmails(
+        [...emails, content[0]],
+        userInfo.email
+      );
+      setEmails(newEmails);
     });
 
     socket.on("users", (users) => {
+      console.log("connected users retrieved");
       setConnectedUsers(users);
     });
 
@@ -188,9 +254,14 @@ const Chat = () => {
       setConnectedUsers([...connectedUsers, user]);
     });
 
-    // socket.on("user disconnected", () => {
-    //   socket.removeAllListeners("private message");
-    // });
+    socket.on("user disconnected", (userID) => {
+      // socket.removeAllListeners("private message");
+      const newConnectedUsers = connectedUsers.filter(
+        (user) => user.userID !== userID
+      );
+      console.log("New Connected Users:", newConnectedUsers);
+      setConnectedUsers(newConnectedUsers);
+    });
 
     return () => {
       socket.off("users");
@@ -201,19 +272,21 @@ const Chat = () => {
   });
 
   const setSelectedContact = async (email, name) => {
-    setSelectedName(name);
-    setSelectedEmail(email);
-    setShowBody(true);
+    if (email !== selectedEmail) {
+      setSelectedName(name);
+      setSelectedEmail(email);
+      setShowBody(true);
 
-    setIsChatLoading(true);
-    getMessages(email, userInfo.email).then((selectedMessages) => {
-      const chat = selectedMessages.map((message) => (
-        <ChatBubble key={message.id} message={message} />
-      ));
-      setBubble(chat);
-      setIsChatLoading(false);
-      console.log("chatloaded");
-    });
+      setIsChatLoading(true);
+      getMessages(email, userInfo.email).then((selectedMessages) => {
+        const chat = selectedMessages.map((message) => (
+          <ChatBubble key={message.id} message={message} />
+        ));
+        setBubble(chat);
+        setIsChatLoading(false);
+        console.log("chatloaded");
+      });
+    }
   };
 
   const chatBox = () => {
@@ -240,21 +313,45 @@ const Chat = () => {
     }, []);
   };
 
-  const onSend = async () => {
+  const noteBox = () => {
+    console.log("todayNotes", todayNotes);
+    return todayNotes.reduce((filtered, note) => {
+      const { id, text, title, updatedAt } = note;
+      const time = new Date(updatedAt);
+      filtered.push(
+        <NoteBox
+          noteId={id}
+          title={title}
+          text={text}
+          time={`${(time.getHours() < 10 ? "0" : "") + time.getHours()}:${
+            (time.getMinutes() < 10 ? "0" : "") + time.getMinutes()
+          }`}
+          onClick={setSelectedNote}
+          key={id}
+        />
+      );
+      return filtered;
+    }, []);
+  };
+
+  const onSend = async (newEmail, newSubject, newMessage) => {
     console.log("sending");
     setIsSending(true);
-    if (!selectedEmail) {
+    if (!selectedEmail && !newEmail) {
       alert("no email selected");
       setIsSending(false);
       return;
     }
 
-    if (!message) {
+    if (!message && !newEmail) {
       alert("Please enter a message");
       setIsSending(false);
       return;
     }
-    sendMessage(selectedEmail, message)
+    const to = newEmail ? newEmail : selectedEmail;
+    const messageSubject = newSubject ? newSubject : subject;
+    const messageContent = newMessage ? newMessage : message;
+    sendMessage(to, messageSubject, messageContent)
       .then((response) => {
         const email = sortEmail(
           userInfo.email,
@@ -262,24 +359,42 @@ const Chat = () => {
           false,
           "asc"
         );
-        const oneBubble = <ChatBubble key={email[0].id} message={email[0]} />;
-        setBubble([...bubble, oneBubble]);
+        if (selectedEmail === email[0].contact.email) {
+          const oneBubble = <ChatBubble key={email[0].id} message={email[0]} />;
+          setBubble([...bubble, oneBubble]);
+        }
+
+        email[0].time = new Date(email[0].time);
+        email[0].contact = email[0].receiver;
+        const newEmails = addReceivedEmails([...emails, email[0]]);
+        setEmails(newEmails);
         const socketReceiver = connectedUsers.find(
           (user) => user.email === selectedEmail
         );
         console.log("Emitted", connectedUsers, selectedEmail);
         if (socketReceiver) {
           socket.emit("private message", {
-            content: message,
+            content: email,
             to: socketReceiver.userID,
           });
         }
 
         setIsSending(false);
+        handleClose();
       })
       .catch((error) => console.log(error));
 
     setMessage("");
+  };
+
+  const onAddNote = async (title, text) => {
+    setIsAddingNote(true);
+    addNote(title, text, userInfo.id).then((data) => {
+      console.log(data);
+      alert(`Note with the title: ${data.title} added!`);
+      setShowNote(false);
+      setIsAddingNote(false);
+    });
   };
 
   return (
@@ -289,7 +404,12 @@ const Chat = () => {
           md={4}
           className="border border-bottom-0 border-top-0 m-0 p-0 min-vh-100 d-flex flex-column"
         >
-          <ChatSideBar chatBoxes={chatBox()} />
+          <ChatSideBar
+            noteBoxes={noteBox()}
+            chatBoxes={chatBox()}
+            setShow={setShow}
+            setShowOptions={setShowOptions}
+          />
         </Col>
         <Col
           md={8}
@@ -321,16 +441,40 @@ const Chat = () => {
           )}
           <ChatBody
             onSubmit={onSend}
-            senderName={selectedName}
+            receiverName={selectedName}
+            receiverEmail={selectedEmail}
             message={message}
             setMessage={setMessage}
             isShowBody={showBody}
             setShowBody={setShowBody}
             bubble={bubble}
             isSending={isSending}
+            setShow={setShow}
+            setShowOptions={setShowOptions}
+            setNewEmail={setNewEmail}
           />
         </Col>
       </Row>
+      <NewEmail
+        show={show}
+        showOptions={showOptions}
+        handleClose={handleClose}
+        newEmail={newEmail}
+        setNewEmail={setNewEmail}
+        newSubject={newSubject}
+        setNewSubject={setNewSubject}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
+        onSubmit={onSend}
+        isSending={isSending}
+      />
+      <NewNote
+        setShow={setShow}
+        showNote={showNote}
+        setShowNote={setShowNote}
+        isAddingNote={isAddingNote}
+        onSubmit={onAddNote}
+      />
     </Container>
   );
 };

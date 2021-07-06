@@ -1,28 +1,32 @@
 import { useState, useEffect, useRef } from "react";
-import { Card, Form, Button, Modal, Spinner } from "react-bootstrap";
+import { Card, Form, Button, Spinner } from "react-bootstrap";
 import { HiOutlineAtSymbol } from "react-icons/hi";
 import { BiCode } from "react-icons/bi";
 import { FaLessThan } from "react-icons/fa";
 import { FaPaperPlane } from "react-icons/fa";
-
 import { Logout } from "../../components/GoogleAuth";
 
 const ChatBody = ({
   onSubmit,
-  senderName,
+  receiverName,
+  receiverEmail,
   message,
   setMessage,
   isShowBody,
   setShowBody,
   bubble,
   isSending,
+  setShow,
+  setShowOptions,
+  setNewEmail,
 }) => {
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
   const messagesEndRef = useRef(null);
+
+  const handleShow = () => {
+    setShowOptions(false);
+    setNewEmail(receiverEmail);
+    setShow(true);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,7 +50,7 @@ const ChatBody = ({
               ) : (
                 ""
               )}{" "}
-              {isShowBody ? senderName : "Welcome to SpikeNow"}
+              {isShowBody ? receiverName : "Welcome to SpikeNow"}
             </h6>
             <Logout />
           </div>
@@ -83,10 +87,11 @@ const ChatBody = ({
               <Form.Control
                 type="text"
                 className="rounded-0 border-right-0 border-left-0 shadow-none h-100"
-                placeholder="Message"
                 value={message}
+                placeholder="Message"
                 onChange={(e) => setMessage(e.target.value)}
-              ></Form.Control>
+              />
+
               <Button
                 variant="link"
                 className="bg-white border-top border-bottom rounded-0 m-0"
@@ -98,7 +103,7 @@ const ChatBody = ({
               <Button
                 variant="link"
                 className="bg-white border-top border-bottom rounded-0 m-0"
-                onClick={() => onSubmit(message)}
+                onClick={() => onSubmit()}
                 disabled={isSending ? true : false}
               >
                 {" "}
@@ -116,18 +121,6 @@ const ChatBody = ({
               </Button>
             </div>
           </div>
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>Reply</Modal.Title>
-            </Modal.Header>
-            <Modal.Body></Modal.Body>
-            <Modal.Footer>
-              <Button variant="link" className="bg-white">
-                {" "}
-                <FaPaperPlane />{" "}
-              </Button>
-            </Modal.Footer>
-          </Modal>
         </>
       )}
     </>

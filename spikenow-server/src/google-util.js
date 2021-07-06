@@ -11,14 +11,6 @@ const googleConfig = {
   redirect: "http://localhost:3000",
 };
 
-const defaultScope = [
-  "https://www.googleapis.com/auth/plus.me",
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
-  "https://www.googleapis.com/auth/gmail.send",
-  "https://www.googleapis.com/auth/gmail.readonly",
-];
-
 /*************/
 /** HELPERS **/
 /*************/
@@ -33,7 +25,7 @@ function createConnection() {
 
 function makeBody(to, from, subject, message) {
   var str = [
-    'Content-Type: text/plain; charset="UTF-8"\n',
+    'Content-Type: text/html; charset="UTF-8"\n',
     "MIME-Version: 1.0\n",
     "Content-Transfer-Encoding: 7bit\n",
     "to: ",
